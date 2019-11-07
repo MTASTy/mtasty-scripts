@@ -1,0 +1,23 @@
+{
+  "name": "mtasty-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "ts-node -r tsconfig-paths/register src/cli.ts",
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "tslint -p tsconfig.json -c tslint.json"
+  },
+  "bin": {
+    "mtasty-scripts": "./dist/cli.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^1.18.2",
+    "rimraf": "^3.0.0",
+    "ts-node": "^8.4.1",
+    "tsconfig-paths": "^3.9.0",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.2"
+  }
+}
