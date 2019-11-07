@@ -13,11 +13,18 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^12.12.6",
     "prettier": "^1.18.2",
     "rimraf": "^3.0.0",
     "ts-node": "^8.4.1",
     "tsconfig-paths": "^3.9.0",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "@types/toposort": "^2.0.3",
+    "commander": "^4.0.0",
+    "toposort": "^2.0.2",
+    "xmlbuilder": "^13.0.2"
   }
 }
