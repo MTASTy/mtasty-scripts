@@ -9,7 +9,7 @@ program
   .command("build")
   .description("Build projects inside mtasty resource")
   .option("-p, --path [path]", "Specify path to mtasty-resource", ".")
-  .action(async (env, options) => {
+  .action(async (options) => {
     try {
       const fullPath = parsePath(options.path);
       const config = await parseConfig(fullPath);
@@ -23,7 +23,7 @@ program
   .command("generate-meta")
   .description("Generate meta.xml inside mtasty resource")
   .option("-p, --path [path]", "Specify path to mtasty-resource", ".")
-  .action(async (env, options) => {
+  .action(async (options) => {
     try {
       const fullPath = parsePath(options.path);
       const config = await parseConfig(fullPath);
