@@ -1,7 +1,7 @@
 import * as rimraf from "rimraf";
 import * as path from "path";
-import {spawnSync} from "child_process";
-import {generateMeta} from "./generate-meta";
+import { spawnSync } from "child_process";
+import { generateMeta } from "./generate-meta";
 
 interface IBuildOptions {
   fullPath: string;

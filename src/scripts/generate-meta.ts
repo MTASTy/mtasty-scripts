@@ -1,11 +1,11 @@
-
 /* tslint:disable */
+import * as path from "path";
 import { resolve } from "path";
 import { Dirent, promises as fsPromises } from "fs";
-import * as path from "path";
 import * as toposort from "toposort";
-import {ResourceFile, ResourceMap} from "../types/ResourceConfig";
 import * as builder from "xmlbuilder";
+import { ResourceMap } from "../types/ResouceMap";
+import { ResourceFile } from "../types/ResourceFile";
 
 interface GenerateMetaOptions {
   fullPath: string;

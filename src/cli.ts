@@ -1,13 +1,10 @@
 import * as program from "commander";
-import {parseConfig, parsePath} from "./utils";
-import {generateMeta} from "./scripts/generate-meta";
-import * as rimraf from "rimraf";
-import * as path from "path";
-import {spawnSync} from "child_process";
-import {buildProject} from "./scripts/build";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {ResourceConfig} from "./types/ResourceConfig";
+import { parseConfig, parsePath } from "./utils";
+import { generateMeta } from "./scripts/generate-meta";
+import { buildProject } from "./scripts/build";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { ResourceConfig } from "./types/ResourceConfig";
 
 program
   .command("build")
@@ -18,11 +15,13 @@ program
       const fullPath = parsePath(options.path);
       const config = parseConfig(fullPath);
 
-      let configInstance = plainToClass(ResourceConfig, config);
+      const configInstance = plainToClass(ResourceConfig, config);
       const validationErrors = await validate(configInstance);
 
-      if (validationErrors.length > 0)
-        throw new Error(`Config validation failed. Errors: ${validationErrors}`);
+      if (validationErrors.length > 0) {
+        console.error(`Config validation failed. Errors: ${validationErrors}`);
+        return;
+      }
 
       await buildProject({fullPath, config});
     } catch (e) {
@@ -39,11 +38,13 @@ program
       const fullPath = parsePath(options.path);
       const config = parseConfig(fullPath);
 
-      let configInstance = plainToClass(ResourceConfig, config);
+      const configInstance = plainToClass(ResourceConfig, config);
       const validationErrors = await validate(configInstance);
 
-      if (validationErrors.length > 0)
-        throw new Error(`Config validation failed. Errors: ${validationErrors}`);
+      if (validationErrors.length > 0) {
+        console.error(`Config validation failed. Errors: ${validationErrors}`);
+        return;
+      }
 
       await generateMeta({fullPath, config});
 
