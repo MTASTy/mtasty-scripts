@@ -4,19 +4,19 @@ import { ResourceConfig } from "./ResourceConfig";
 export class PackageConfig {
   @IsString()
   @IsOptional()
-  name!: string;
+  name: string = "unknown";
 
   @IsString()
   @IsOptional()
-  author!: string;
+  author: string = "unknown";
 
   @IsString()
   @IsOptional()
-  version!: string;
+  version: string = "1.0";
 
   @IsString()
   @IsOptional()
-  description!: string;
+  description: string = "";
 
   @ValidateNested()
   mtasty!: ResourceConfig;

@@ -13,17 +13,8 @@ program
   .action(async (env, options) => {
     try {
       const fullPath = parsePath(options.path);
-      const config = parseConfig(fullPath);
-
-      const configInstance = plainToClass(PackageConfig, config);
-      const validationErrors = await validate(configInstance);
-
-      if (validationErrors.length > 0) {
-        console.error(`Config validation failed. Errors: ${validationErrors}`);
-        return;
-      }
-
-      await buildProject({fullPath, config});
+      const config = await parseConfig(fullPath);
+      await buildProject({ fullPath, config });
     } catch (e) {
       console.error(e.toString());
     }
@@ -36,18 +27,8 @@ program
   .action(async (env, options) => {
     try {
       const fullPath = parsePath(options.path);
-      const config = parseConfig(fullPath);
-
-      const configInstance = plainToClass(PackageConfig, config);
-      const validationErrors = await validate(configInstance);
-
-      if (validationErrors.length > 0) {
-        console.error(`Config validation failed. Errors: ${validationErrors}`);
-        return;
-      }
-
-      await generateMeta({fullPath, config});
-
+      const config = await parseConfig(fullPath);
+      await generateMeta({ fullPath, config });
     } catch (e) {
       console.error(e.toString());
     }

@@ -1,5 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
+import { PackageConfig } from "./types/PackageConfig";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
 
 export function parsePath(input: unknown): string {
   if (input === undefined) {
@@ -23,7 +26,7 @@ export function parsePath(input: unknown): string {
   return fullPath;
 }
 
-export function parseConfig(resourcePath: string) {
+export async function parseConfig(resourcePath: string): Promise<PackageConfig> {
   let configContent;
 
   try {
@@ -32,7 +35,7 @@ export function parseConfig(resourcePath: string) {
     throw new Error("Target directory doesn't contains package.json");
   }
 
-  let json;
+  let json: unknown;
 
   try {
     json = JSON.parse(configContent);
@@ -40,9 +43,12 @@ export function parseConfig(resourcePath: string) {
     throw new Error("Target directory contains invalid package.json");
   }
 
-  if (!json.mtasty) {
-    throw new Error("Target directory contains package.json without MTASTy config");
+  const config = plainToClass(PackageConfig, json);
+  const validationErrors = await validate(config);
+
+  if (validationErrors.length > 0) {
+    throw new Error(`Config validation failed. Errors: ${validationErrors}`);
   }
 
-  return json;
+  return config;
 }
