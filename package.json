@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/node": "^12.12.6",
     "@types/rimraf": "^2.0.3",
+    "@types/toposort": "^2.0.3",
     "prettier": "^1.18.2",
     "rimraf": "^3.0.0",
     "ts-node": "^8.4.1",
@@ -23,7 +24,6 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "@types/toposort": "^2.0.3",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.0",
     "commander": "^4.0.0",
