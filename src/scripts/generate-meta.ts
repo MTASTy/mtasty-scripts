@@ -6,6 +6,7 @@ import * as path from "path";
 import * as toposort from "toposort";
 import {ResourceFile, ResourceMap} from "../types/ResourceConfig";
 import * as builder from "xmlbuilder";
+
 interface GenerateMetaOptions {
   fullPath: string;
   config: any;
@@ -13,7 +14,9 @@ interface GenerateMetaOptions {
 
 async function getResourceScriptsList(fullPath: string, type: "client" | "server", cache: boolean) {
   const buildPath = path.resolve(`${fullPath}/build/`);
-  const filesPaths = await getFilesPaths(buildPath) as string[];
+  let filesPaths = await getFilesPaths(buildPath) as string[];
+
+  filesPaths.filter(filePath => path.extname(filePath) === ".lua");
 
   const filesDependencies = await Promise.all(
     filesPaths.map(filePath => fsPromises.readFile(filePath, "utf8")
@@ -95,6 +98,7 @@ export async function generateMeta(options: GenerateMetaOptions) {
     }
   };
 
+  //Start xml file declaration
   const xmlFile = builder.create("meta");
 
   xmlFile.ele("info", {
@@ -105,14 +109,38 @@ export async function generateMeta(options: GenerateMetaOptions) {
     type: "script"
   });
 
+  // Core integration
+  let coreScripts: any[] = [];
+
+  if (mtasty.type === "client") {
+    coreScripts = await getResourceScriptsList(
+      path.resolve(options.fullPath, "/node_modules/@mtasty/core-client/build/"),
+      "client",
+      mtasty.cache
+    );
+  } else {
+    coreScripts = await getResourceScriptsList(
+      path.resolve(options.fullPath, "/node_modules/@mtasty/core-server/build/"),
+      "server",
+      mtasty.cache
+    );
+  }
+
+  coreScripts.forEach((script) => xmlFile.ele("script", {
+    ...script
+  }));
+
+  // Adding scripts to xml
   scripts.forEach((script) => xmlFile.ele("script", {
     ...script
   }));
 
+  // Adding maps to xml
   maps.forEach((map) => xmlFile.ele("map", {
     ...map
   }));
 
+  // Adding files to xml
   files.forEach((file) => xmlFile.ele("file", {
     ...file
   }));

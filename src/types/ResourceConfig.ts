@@ -1,16 +1,41 @@
+import {IsString, ValidateNested} from "class-validator";
+
 export class ResourceConfig {
-  type: "client" | "server";
-  maps: ResourceMap[];
-  files: ResourceFile[];
+  @IsString()
+  type!: "client" | "server";
+
+  @IsString()
+  name!: string;
+
+  @IsString()
+  author!: string;
+
+  @IsString()
+  version!: string;
+
+  @IsString()
+  description!: string;
+
+  @ValidateNested({ each: true })
+  maps!: ResourceMap[];
+
+  @ValidateNested({ each: true })
+  files!: ResourceFile[];
 }
 
 export class ResourceMap {
-  src: string;
+  @IsString()
+  src!: string;
+
+  @IsString()
   dimension?: number;
 }
 
 export class ResourceFile {
-  src: string;
+  @IsString()
+  src!: string;
+
+  @IsString()
   download?: boolean;
 }
 
