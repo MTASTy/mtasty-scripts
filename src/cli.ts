@@ -51,3 +51,5 @@ program
       console.error(e.toString());
     }
   });
+
+program.parse(process.argv);
