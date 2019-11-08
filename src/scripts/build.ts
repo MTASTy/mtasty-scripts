@@ -12,5 +12,5 @@ export async function buildProject(options: IBuildOptions) {
   const {config, fullPath} = options;
   rimraf.sync(path.resolve(fullPath, "/build"));
   spawnSync("tstl", ["-p", path.resolve(fullPath, "/tsconfig.json")], { encoding: "utf8" });
-  await generateMeta({ fullPath, config })
+  await generateMeta({ fullPath, config });
 }
