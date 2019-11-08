@@ -1,10 +1,9 @@
+#!/usr/bin/env node
+
 import * as program from "commander";
 import { parseConfig, parsePath } from "./utils";
 import { generateMeta } from "./scripts/generate-meta";
 import { buildProject } from "./scripts/build";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { PackageConfig } from "./types/PackageConfig";
 
 program
   .command("build")
