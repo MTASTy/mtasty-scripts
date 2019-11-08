@@ -4,7 +4,7 @@ import { generateMeta } from "./scripts/generate-meta";
 import { buildProject } from "./scripts/build";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
-import { ResourceConfig } from "./types/ResourceConfig";
+import { PackageConfig } from "./types/PackageConfig";
 
 program
   .command("build")
@@ -15,7 +15,7 @@ program
       const fullPath = parsePath(options.path);
       const config = parseConfig(fullPath);
 
-      const configInstance = plainToClass(ResourceConfig, config);
+      const configInstance = plainToClass(PackageConfig, config);
       const validationErrors = await validate(configInstance);
 
       if (validationErrors.length > 0) {
@@ -38,7 +38,7 @@ program
       const fullPath = parsePath(options.path);
       const config = parseConfig(fullPath);
 
-      const configInstance = plainToClass(ResourceConfig, config);
+      const configInstance = plainToClass(PackageConfig, config);
       const validationErrors = await validate(configInstance);
 
       if (validationErrors.length > 0) {

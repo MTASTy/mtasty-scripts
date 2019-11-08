@@ -87,17 +87,6 @@ export async function generateMeta(options: GenerateMetaOptions) {
     getResourceMapsList(options.fullPath, mtasty.maps)
   ]);
 
-  const xmlObject = {
-    meta: {
-      info: {
-        '@type': 'script',
-        '@author': options.config.author,
-        '@name': options.config.name,
-        '@version': options.config.version,
-      }
-    }
-  };
-
   //Start xml file declaration
   const xmlFile = builder.create("meta");
 
@@ -150,14 +139,14 @@ export async function generateMeta(options: GenerateMetaOptions) {
   await fsPromises.writeFile(options.fullPath + "/meta.xml", xmlFile.end({pretty: true}),"utf8")
 }
 
-function getMatches(string: string, regex: RegExp, index?: number) {
-  index || (index = 1); // default to the first capturing group
-  let matches = [];
-  let match = regex.exec(string);
+function getMatches(string: string, regex: RegExp, index: number = 1) {
+  const matches = [];
 
+  const match = regex.exec(string);
   while (match) {
     matches.push(match[index]);
   }
+
   return matches;
 }
 
