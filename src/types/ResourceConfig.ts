@@ -10,8 +10,8 @@ export class ResourceConfig {
   cache: boolean = false;
 
   @ValidateNested({ each: true })
-  maps!: ResourceMap[];
+  maps: ResourceMap[] = [];
 
   @ValidateNested({ each: true })
-  files!: ResourceFile[];
+  files: ResourceFile[] = [];
 }

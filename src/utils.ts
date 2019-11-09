@@ -55,6 +55,14 @@ export async function parseConfig(resourcePath: string): Promise<PackageConfig> 
     throw new Error(`Config validation failed. Errors: ${validationErrors}`);
   }
 
+  if (!config.mtasty.files) {
+    config.mtasty.files = [];
+  }
+
+  if (!config.mtasty.maps) {
+    config.mtasty.maps = [];
+  }
+
   return config;
 }
 
