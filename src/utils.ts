@@ -17,7 +17,10 @@ export function parsePath(input: unknown): string {
     throw new Error("CLI option path expects an string argument.");
   }
 
-  const fullPath = path.resolve(input);
+  const fullPath = input.indexOf(".") === 0
+    ? path.join(process.cwd(), input)
+    : path.resolve(input);
+
   const isDirectory = fs.lstatSync(fullPath).isDirectory();
   if (!isDirectory) {
     throw new Error("CLI option path expects path to target directory.");
