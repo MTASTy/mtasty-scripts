@@ -1,12 +1,12 @@
 /* tslint:disable */
 import * as path from "path";
-import { resolve } from "path";
-import { Dirent, promises as fsPromises } from "fs";
+import { promises as fsPromises } from "fs";
 import * as toposort from "toposort";
 import * as builder from "xmlbuilder";
 import { ResourceMap } from "../types/ResouceMap";
 import { ResourceFile } from "../types/ResourceFile";
 import { PackageConfig } from "../types/PackageConfig";
+import { getFilesPaths } from "../utils";
 
 interface GenerateMetaOptions {
   fullPath: string;
@@ -16,13 +16,27 @@ interface GenerateMetaOptions {
 export async function generateMeta(options: GenerateMetaOptions) {
   const mtasty = options.config.mtasty;
 
-  const [ scripts, files, maps ] = await Promise.all([
-    getResourceScriptsList(options.fullPath, mtasty.type, mtasty.cache),
-    getResourceFilesList(options.fullPath, mtasty.files),
-    getResourceMapsList(options.fullPath, mtasty.maps)
+  const getCoreScriptsListConfig = {
+    fullPath: options.fullPath,
+    buildPath: path.join(options.fullPath, `node_modules/@mtasty/core-${mtasty.type}/build/`),
+    type: mtasty.type,
+    cache: mtasty.cache
+  };
+
+  const getResourceScriptsListConfig = {
+    fullPath: options.fullPath,
+    buildPath: path.join(options.fullPath, "build"),
+    type: mtasty.type,
+    cache: mtasty.cache
+  };
+
+  const [ coreScripts, resourceScripts, files, maps ] = await Promise.all([
+    getScriptsList(getCoreScriptsListConfig),
+    getScriptsList(getResourceScriptsListConfig),
+    getFilesList(options.fullPath, mtasty.files),
+    getMapsList(options.fullPath, mtasty.maps)
   ]);
 
-  //Start xml file declaration
   const xmlFile = builder.create("meta");
 
   xmlFile.ele("info", {
@@ -33,70 +47,39 @@ export async function generateMeta(options: GenerateMetaOptions) {
     type: "script"
   });
 
-  // Core integration
-  let coreScripts: any[] = [];
-
-  if (mtasty.type === "client") {
-    coreScripts = await getResourceScriptsList(
-      path.resolve(options.fullPath, "/node_modules/@mtasty/core-client/build/"),
-      "client",
-      mtasty.cache
-    );
-  } else {
-    coreScripts = await getResourceScriptsList(
-      path.resolve(options.fullPath, "/node_modules/@mtasty/core-server/build/"),
-      "server",
-      mtasty.cache
-    );
-  }
-
-  coreScripts.forEach((script) => xmlFile.ele("script", {
-    ...script
-  }));
-
-  // Adding scripts to xml
-  scripts.forEach((script) => xmlFile.ele("script", {
-    ...script
-  }));
-
-  // Adding maps to xml
-  maps.forEach((map) => xmlFile.ele("map", {
-    ...map
-  }));
-
-  // Adding files to xml
-  files.forEach((file) => xmlFile.ele("file", {
-    ...file
-  }));
+  coreScripts.forEach((script) => xmlFile.ele("script", { ...script }));
+  resourceScripts.forEach((script) => xmlFile.ele("script", { ...script }));
+  maps.forEach((map) => xmlFile.ele("map", { ...map }));
+  files.forEach((file) => xmlFile.ele("file", { ...file }));
 
   xmlFile.ele("oop", {}, "true");
 
-  await fsPromises.writeFile(options.fullPath + "/meta.xml", xmlFile.end({pretty: true}),"utf8")
+  const metaContent = xmlFile.end({ pretty: true });
+  await fsPromises.writeFile(path.join(options.fullPath, "meta.xml"), metaContent,"utf8")
 }
 
 function getMatches(string: string, regex: RegExp, index: number = 1) {
   const matches = [];
-
-  const match = regex.exec(string);
-  while (match) {
+  let match;
+  // noinspection JSAssignmentUsedAsCondition
+  while (match = regex.exec(string)) {
     matches.push(match[index]);
   }
 
   return matches;
 }
 
-async function getResourceScriptsList(fullPath: string, type: "client" | "server", cache: boolean) {
-  const buildPath = path.resolve(`${fullPath}/build/`);
-  let filesPaths = await getFilesPaths(buildPath) as string[];
-
-  filesPaths.filter(filePath => path.extname(filePath) === ".lua");
+async function getScriptsList({ fullPath, buildPath, type, cache }: { fullPath: string, buildPath: string, type: "client" | "server", cache: boolean})
+{
+  const filesPaths = (await getFilesPaths(buildPath))
+    .filter(filePath => path.extname(filePath) === ".lua");
 
   const filesDependencies = await Promise.all(
     filesPaths.map(filePath => fsPromises.readFile(filePath, "utf8")
       .then((content: string) => ({
         fileName: path.relative(fullPath, filePath),
         dependencies: getMatches(content, /require\("(.*)"\)/g)
-          .map(m => path.normalize(`build/${m.split(".").join("/")}.lua`)),
+          .map(m => path.join(path.relative(fullPath, buildPath), `${m.split(".").join("/")}.lua`)),
       }))
     )
   );
@@ -119,68 +102,34 @@ async function getResourceScriptsList(fullPath: string, type: "client" | "server
   withoutRelations = withoutRelations.filter(item => !topologicalSortedByRelations.includes(item));
 
   return [ ...topologicalSortedByRelations, ...withoutRelations ].map((filePath: string) => ({
-    src: filePath,
+    src: filePath.replace(/\\/g, "/"),
     cache,
     type
   }));
 }
 
-async function getResourceFilesList(fullPath: string, files: ResourceFile[]) {
+async function getFilesList(fullPath: string, files: ResourceFile[]) {
   const result = [];
 
   for (const item of files) {
     const filesPaths = await getFilesPaths(item.src);
     result.push(...filesPaths.map((filePath: string) => ({
-        src: path.relative(fullPath, filePath),
+        src: path.relative(fullPath, filePath).replace(/\\/g, "/"),
         download: item.download
     })));
   }
   return result;
 }
 
-async function getResourceMapsList(fullPath: string, maps: ResourceMap[]) {
+async function getMapsList(fullPath: string, maps: ResourceMap[]) {
   const result = [];
 
   for (const item of maps) {
     const filesPaths = await getFilesPaths(item.src);
     result.push(...filesPaths.map((filePath: string) => ({
-      src: path.relative(fullPath, filePath),
+      src: path.relative(fullPath, filePath).replace(/\\/g, "/"),
       dimension: item.dimension
     })));
   }
   return result;
-}
-
-async function getFilesPaths(directoryOrFilePath: string): Promise<any> {
-  let dirEntries: Dirent[];
-
-  try {
-    const stat = await fsPromises.lstat(directoryOrFilePath);
-
-    if (stat.isFile()) {
-      return [directoryOrFilePath];
-    }
-
-    if (!stat.isDirectory()) {
-      return [];
-    }
-
-  } catch (e) {
-    console.log("Can't execute lstat");
-    return [];
-  }
-
-  try {
-    dirEntries = await fsPromises.readdir(directoryOrFilePath, { withFileTypes: true });
-  } catch (e) {
-    // TODO: Add warning
-    return [];
-  }
-
-  const files = await Promise.all(dirEntries.map((item) => {
-    const fullPath = resolve(directoryOrFilePath, item.name);
-    return item.isDirectory() ? getFilesPaths(fullPath) : fullPath;
-  }));
-
-  return Array.prototype.concat(...files);
 }
