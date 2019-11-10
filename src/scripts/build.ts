@@ -28,7 +28,16 @@ export async function buildProject(options: IBuildOptions) {
 
   const configFileName = path.join(fullPath, "tsconfig.json");
   const { emitResult, diagnostics } = tstl.transpileProject(configFileName);
-  emitResult.forEach(({ name, text }: { name: string, text: string }) => ts.sys.writeFile(name, text));
+  emitResult.forEach(({ name, text }: { name: string, text: string }) => {
+    const exportsKey = path.relative(path.resolve(options.fullPath), path.resolve(name)).replace(/\\/g, "/");
+    const convertedExportsText = text
+      .replace(/local ____exports = {}/gmis, `____exports["${exportsKey}"] = {}`)
+      .replace(/____exports\./gmis, `____exports["${exportsKey}"].`)
+      .replace(/return ____exports/gmis, "")
+    ;
+
+    ts.sys.writeFile(name, convertedExportsText);
+  });
 
   const reportDiagnostic = tstl.createDiagnosticReporter(true);
   diagnostics.forEach(reportDiagnostic);
