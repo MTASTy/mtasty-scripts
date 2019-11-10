@@ -16,13 +16,6 @@ interface GenerateMetaOptions {
 export async function generateMeta(options: GenerateMetaOptions) {
   const mtasty = options.config.mtasty;
 
-  const getCoreScriptsListConfig = {
-    fullPath: options.fullPath,
-    buildPath: path.join(options.fullPath, `node_modules/@mtasty/core-${mtasty.type}/build/`),
-    type: mtasty.type,
-    cache: mtasty.cache
-  };
-
   const getResourceScriptsListConfig = {
     fullPath: options.fullPath,
     buildPath: path.join(options.fullPath, "build"),
@@ -30,8 +23,7 @@ export async function generateMeta(options: GenerateMetaOptions) {
     cache: mtasty.cache
   };
 
-  const [ coreScripts, resourceScripts, files, maps ] = await Promise.all([
-    getScriptsList(getCoreScriptsListConfig),
+  const [ scripts, files, maps ] = await Promise.all([
     getScriptsList(getResourceScriptsListConfig),
     getFilesList(options.fullPath, mtasty.files),
     getMapsList(options.fullPath, mtasty.maps)
@@ -47,8 +39,7 @@ export async function generateMeta(options: GenerateMetaOptions) {
     type: "script"
   });
 
-  coreScripts.forEach((script) => xmlFile.ele("script", { ...script }));
-  resourceScripts.forEach((script) => xmlFile.ele("script", { ...script }));
+  scripts.forEach((script) => xmlFile.ele("script", { ...script }));
   maps.forEach((map) => xmlFile.ele("map", { ...map }));
   files.forEach((file) => xmlFile.ele("file", { ...file }));
 
