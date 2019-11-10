@@ -2,6 +2,8 @@ import * as rimraf from "rimraf";
 import * as path from "path";
 import { generateMeta } from "./generate-meta";
 import { PackageConfig } from "../types/PackageConfig";
+import { promises as fsPromises } from "fs";
+import { MTAHelpersScriptContent, MTAHelpersScriptName } from "../const/mta-helpers";
 
 interface IBuildOptions {
   fullPath: string;
@@ -24,7 +26,9 @@ export async function buildProject(options: IBuildOptions) {
   }
 
   const {config, fullPath} = options;
-  rimraf.sync(path.resolve(fullPath, "/build"));
+  const buildPath = path.join(fullPath, "build");
+
+  rimraf.sync(buildPath);
 
   const configFileName = path.join(fullPath, "tsconfig.json");
   const { emitResult, diagnostics } = tstl.transpileProject(configFileName);
@@ -43,4 +47,5 @@ export async function buildProject(options: IBuildOptions) {
   diagnostics.forEach(reportDiagnostic);
 
   await generateMeta({ fullPath, config });
+  await fsPromises.writeFile(path.join(buildPath, MTAHelpersScriptName), MTAHelpersScriptContent, "utf8");
 }

@@ -7,6 +7,7 @@ import { ResourceMap } from "../types/ResouceMap";
 import { ResourceFile } from "../types/ResourceFile";
 import { PackageConfig } from "../types/PackageConfig";
 import { getFilesPaths } from "../utils";
+import { MTAHelpersScriptName } from "../const/mta-helpers";
 
 interface GenerateMetaOptions {
   fullPath: string;
@@ -39,6 +40,12 @@ export async function generateMeta(options: GenerateMetaOptions) {
     type: "script"
   });
 
+  xmlFile.ele("script", {
+    src: `build/${MTAHelpersScriptName}`,
+    cache: mtasty.cache,
+    type: mtasty.type
+  });
+
   scripts.forEach((script) => xmlFile.ele("script", { ...script }));
   maps.forEach((map) => xmlFile.ele("map", { ...map }));
   files.forEach((file) => xmlFile.ele("file", { ...file }));
@@ -63,7 +70,9 @@ function getMatches(string: string, regex: RegExp, index: number = 1) {
 async function getScriptsList({ fullPath, buildPath, type, cache }: { fullPath: string, buildPath: string, type: "client" | "server", cache: boolean})
 {
   const filesPaths = (await getFilesPaths(buildPath))
-    .filter(filePath => path.extname(filePath) === ".lua");
+    .filter(filePath => path.extname(filePath) === ".lua")
+    .filter(filePath => path.basename(filePath) !== MTAHelpersScriptName)
+  ;
 
   const filesDependencies = await Promise.all(
     filesPaths.map(filePath => fsPromises.readFile(filePath, "utf8")
