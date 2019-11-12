@@ -7,27 +7,33 @@ import { ResourceMap } from "../types/ResouceMap";
 import { ResourceFile } from "../types/ResourceFile";
 import { PackageConfig } from "../types/PackageConfig";
 import { getFilesPaths } from "../utils";
-import { MTAHelpersScriptName } from "../const/mta-helpers";
+import { MTAHelpersScriptContent, MTAHelpersScriptName } from "../const/mta-helpers";
 
 interface GenerateMetaOptions {
   fullPath: string;
+  scriptsPaths: string[];
   config: PackageConfig;
 }
 
 export async function generateMeta(options: GenerateMetaOptions) {
   const mtasty = options.config.mtasty;
 
+  const scriptsPaths = options.scriptsPaths;
+  const fullPath = options.fullPath;
+  const buildPath = path.join(options.fullPath, "build");
+
   const getResourceScriptsListConfig = {
-    fullPath: options.fullPath,
-    buildPath: path.join(options.fullPath, "build"),
+    fullPath,
+    buildPath,
+    scriptsPaths,
     type: mtasty.type,
     cache: mtasty.cache
   };
 
   const [ scripts, files, maps ] = await Promise.all([
     getScriptsList(getResourceScriptsListConfig),
-    getFilesList(options.fullPath, mtasty.files),
-    getMapsList(options.fullPath, mtasty.maps)
+    getFilesList(fullPath, mtasty.files),
+    getMapsList(fullPath, mtasty.maps)
   ]);
 
   const xmlFile = builder.create("meta");
@@ -40,11 +46,15 @@ export async function generateMeta(options: GenerateMetaOptions) {
     type: "script"
   });
 
-  xmlFile.ele("script", {
-    src: `build/${MTAHelpersScriptName}`,
-    cache: mtasty.cache,
-    type: mtasty.type
-  });
+  if (scriptsPaths.length > 0) {
+    xmlFile.ele("script", {
+      src: `build/${MTAHelpersScriptName}`,
+      cache: mtasty.cache,
+      type: mtasty.type
+    });
+
+    await fsPromises.writeFile(path.join(buildPath, MTAHelpersScriptName), MTAHelpersScriptContent, "utf8");
+  }
 
   scripts.forEach((script) => xmlFile.ele("script", { ...script }));
   maps.forEach((map) => xmlFile.ele("map", { ...map }));
@@ -67,15 +77,18 @@ function getMatches(string: string, regex: RegExp, index: number = 1) {
   return matches;
 }
 
-async function getScriptsList({ fullPath, buildPath, type, cache }: { fullPath: string, buildPath: string, type: "client" | "server", cache: boolean})
-{
-  const filesPaths = (await getFilesPaths(buildPath))
-    .filter(filePath => path.extname(filePath) === ".lua")
-    .filter(filePath => path.basename(filePath) !== MTAHelpersScriptName)
-  ;
+interface IGetScriptsListOptions {
+  fullPath: string;
+  buildPath: string;
+  scriptsPaths: string[];
+  type: "client" | "server";
+  cache: boolean;
+}
 
+async function getScriptsList({ fullPath, buildPath, scriptsPaths, type, cache }: IGetScriptsListOptions)
+{
   const filesDependencies = await Promise.all(
-    filesPaths.map(filePath => fsPromises.readFile(filePath, "utf8")
+    scriptsPaths.map(filePath => fsPromises.readFile(filePath, "utf8")
       .then((content: string) => ({
         fileName: path.relative(fullPath, filePath),
         dependencies: getMatches(content, /require\("(.*)"\)/g)

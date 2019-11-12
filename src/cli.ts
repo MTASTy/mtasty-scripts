@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import * as program from "commander";
-import { parseConfig, parsePath } from "./utils";
+import { getFilesPaths, parseConfig, parsePath } from "./utils";
 import { generateMeta } from "./scripts/generate-meta";
 import { buildProject } from "./scripts/build";
+import * as path from "path";
+import { MTAHelpersScriptName } from "./const/mta-helpers";
 
 program
   .command("build")
@@ -27,7 +29,13 @@ program
     try {
       const fullPath = parsePath(options.path);
       const config = await parseConfig(fullPath);
-      await generateMeta({ fullPath, config });
+
+      const scriptsPaths = (await getFilesPaths(path.join(fullPath, "build")))
+        .filter(filePath => path.extname(filePath) === ".lua")
+        .filter(filePath => path.basename(filePath) !== MTAHelpersScriptName)
+      ;
+
+      await generateMeta({ fullPath, scriptsPaths, config });
     } catch (e) {
       console.error(e.toString());
     }

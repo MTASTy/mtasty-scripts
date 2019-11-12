@@ -2,8 +2,6 @@ import * as rimraf from "rimraf";
 import * as path from "path";
 import { generateMeta } from "./generate-meta";
 import { PackageConfig } from "../types/PackageConfig";
-import { promises as fsPromises } from "fs";
-import { MTAHelpersScriptContent, MTAHelpersScriptName } from "../const/mta-helpers";
 
 interface IBuildOptions {
   fullPath: string;
@@ -46,6 +44,6 @@ export async function buildProject(options: IBuildOptions) {
   const reportDiagnostic = tstl.createDiagnosticReporter(true);
   diagnostics.forEach(reportDiagnostic);
 
-  await generateMeta({ fullPath, config });
-  await fsPromises.writeFile(path.join(buildPath, MTAHelpersScriptName), MTAHelpersScriptContent, "utf8");
+  const scriptsPaths = emitResult.map(({ name }: { name: string }) => name);
+  await generateMeta({ fullPath, scriptsPaths, config });
 }
