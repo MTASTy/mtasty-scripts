@@ -1,5 +1,7 @@
 import * as rimraf from "rimraf";
 import * as path from "path";
+import * as tstl from "@mtasty/typescript-to-lua";
+import * as ts from "typescript";
 import { generateMeta } from "./generate-meta";
 import { PackageConfig } from "../types/PackageConfig";
 
@@ -9,20 +11,6 @@ interface IBuildOptions {
 }
 
 export async function buildProject(options: IBuildOptions) {
-  let tstl: any;
-  try {
-    tstl = await import("typescript-to-lua");
-  } catch (e) {
-    throw new Error("Package typescript-to-lua isn't installed");
-  }
-
-  let ts: any;
-  try {
-    ts = await import("typescript");
-  } catch (e) {
-    throw new Error("Package typescript isn't installed");
-  }
-
   const {config, fullPath} = options;
   const buildPath = path.join(fullPath, "build");
 

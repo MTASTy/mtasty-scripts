@@ -1,6 +1,6 @@
 {
   "name": "@mtasty/scripts",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/cli.ts",
@@ -11,8 +11,19 @@
   "bin": {
     "mtasty-scripts": "./build/cli.js"
   },
-  "files": ["build/**/*.js", "build/**/*.ts"],
+  "files": [
+    "build/**/*.js",
+    "build/**/*.ts"
+  ],
   "license": "MIT",
+  "dependencies": {
+    "@mtasty/typescript-to-lua": "^0.28.1",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.11.0",
+    "commander": "^4.0.0",
+    "toposort": "^2.0.2",
+    "xmlbuilder": "^13.0.2"
+  },
   "devDependencies": {
     "@types/node": "^12.12.6",
     "@types/rimraf": "^2.0.3",
@@ -23,15 +34,5 @@
     "tsconfig-paths": "^3.9.0",
     "tslint": "^5.20.1",
     "typescript": "^3.7.2"
-  },
-  "peerDependencies": {
-    "typescript-to-lua": "^0.28.1"
-  },
-  "dependencies": {
-    "class-transformer": "^0.2.3",
-    "class-validator": "^0.11.0",
-    "commander": "^4.0.0",
-    "toposort": "^2.0.2",
-    "xmlbuilder": "^13.0.2"
   }
 }
