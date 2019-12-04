@@ -1,3 +1,4 @@
+/* tslint:disable */
 import { IsBoolean, IsString, ValidateNested } from "class-validator";
 import { ResourceMap } from "./ResouceMap";
 import { ResourceFile } from "./ResourceFile";
@@ -14,4 +15,7 @@ export class ResourceConfig {
 
   @ValidateNested({ each: true })
   files: ResourceFile[] = [];
+
+  @IsString()
+  min_mta_version!: string;
 }

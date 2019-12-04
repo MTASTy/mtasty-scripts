@@ -62,6 +62,10 @@ export async function generateMeta(options: GenerateMetaOptions) {
 
   xmlFile.ele("oop", {}, "true");
 
+  if (!!mtasty.min_mta_version) {
+    xmlFile.ele("min_mta_version").att(mtasty.type, mtasty.min_mta_version);
+  }
+
   const metaContent = xmlFile.end({ pretty: true });
   await fsPromises.writeFile(path.join(options.fullPath, "meta.xml"), metaContent,"utf8")
 }
