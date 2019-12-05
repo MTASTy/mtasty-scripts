@@ -7,11 +7,17 @@ require = function(path)
     return ____exports["build/" .. string.gsub(path, "%.", "/") .. ".lua"]
 end
 
-addEventHandler("onDebugMessage", root, function(message, level, file, line)
+function debugMessageHandler(message, level, file, line)
     if (string.find(file, "____mta_helpers.lua")) then
         cancelEvent();
     end
-end)
+end
+
+if (localPlayer) then
+  addEventHandler("onClientDebugMessage", root, debugMessageHandler)
+else
+  addEventHandler("onDebugMessage", root, debugMessageHandler)
+end
 
 local oldpcall, oldxpcall = pcall, xpcall
 local pack = table.pack or function(...) return {n = select("#", ...), ...} end
