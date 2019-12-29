@@ -86,4 +86,5 @@ end
 
 pcall = copcall
 xpcall = coxpcall
+coroutine.running = corunning
 `;

@@ -1,6 +1,6 @@
 {
   "name": "@mtasty/scripts",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/cli.ts",
