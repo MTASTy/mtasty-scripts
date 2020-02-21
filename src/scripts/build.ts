@@ -23,7 +23,7 @@ export async function buildProject(options: IBuildOptions) {
     const convertedExportsText = text
       .replace(/local ____exports = {}/gmis, `____exports["${exportsKey}"] = {}`)
       .replace(/____exports\./gmis, `____exports["${exportsKey}"].`)
-      .replace(/return ____exports/gmis, "")
+      .replace(/return ____exports$/gmis, "")
     ;
 
     ts.sys.writeFile(name, convertedExportsText);
