@@ -1,6 +1,6 @@
 {
   "name": "@mtasty/scripts",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/cli.ts",
@@ -17,7 +17,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@mtasty/typescript-to-lua": "^0.32.0",
+    "@mtasty/typescript-to-lua": "^0.32.1",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.0",
     "commander": "^4.0.0",
