@@ -14,7 +14,7 @@ local pack = table.pack or function(...) return {n = select("#", ...), ...} end
 local unpack = table.unpack or unpack
 local coromap = setmetatable({}, { __mode = "k" })
 
-local function handleReturnValue(err, co, status, ...)
+function handleReturnValue(err, co, status, ...)
     if not status then
         return false, err(debug.traceback(co, (...)), ...)
     end
@@ -25,7 +25,7 @@ local function handleReturnValue(err, co, status, ...)
     end
 end
 
-local function performResume(err, co, ...)
+function performResume(err, co, ...)
     return handleReturnValue(err, co, coroutine._resume(co, ...))
 end
 
