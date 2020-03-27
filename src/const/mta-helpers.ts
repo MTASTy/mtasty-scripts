@@ -7,13 +7,14 @@ require = function(path)
     return ____exports["build/" .. string.gsub(path, "%.", "/") .. ".lua"]
 end
 
-local oldpcall, oldxpcall = pcall, xpcall
+_pcall, _xpcall = pcall, xpcall
+coroutine._running = coroutine.running
+
 local pack = table.pack or function(...) return {n = select("#", ...), ...} end
 local unpack = table.unpack or unpack
-local running = coroutine.running
 local coromap = setmetatable({}, { __mode = "k" })
 
-function handleReturnValue(err, co, status, ...)
+local function handleReturnValue(err, co, status, ...)
     if not status then
         return false, err(debug.traceback(co, (...)), ...)
     end
@@ -24,28 +25,28 @@ function handleReturnValue(err, co, status, ...)
     end
 end
 
-function performResume(err, co, ...)
-    return handleReturnValue(err, co, coroutine.resume(co, ...))
+local function performResume(err, co, ...)
+    return handleReturnValue(err, co, coroutine._resume(co, ...))
 end
 
 local function id(trace, ...)
     return trace
 end
 
-function coxpcall(f, err, ...)
-    local current = running()
+function xpcall(f, err, ...)
+    local current = coroutine._running()
     if not current then
         if err == id then
-            return oldpcall(f, ...)
+            return _pcall(f, ...)
         else
             if select("#", ...) > 0 then
                 local oldf, params = f, pack(...)
                 f = function() return oldf(unpack(params, 1, params.n)) end
             end
-            return oldxpcall(f, err)
+            return _xpcall(f, err)
         end
     else
-        local res, co = oldpcall(coroutine.create, f)
+        local res, co = _pcall(coroutine.create, f)
         if not res then
             local newf = function(...) return f(...) end
             co = coroutine.create(newf)
@@ -55,24 +56,20 @@ function coxpcall(f, err, ...)
     end
 end
 
-local function corunning(coro)
-    if coro ~= nil then
-        assert(type(coro)=="thread", "Bad argument; expected thread, got: "..type(coro))
+function pcall(f, ...)
+    return xpcall(f, id, ...)
+end
+
+function coroutine.running(co)
+    if co ~= nil then
+        assert(type(co)=="thread", "Bad argument; expected thread, got: " .. type(co))
     else
-        coro = running()
+        co = coroutine._running()
     end
-    while coromap[coro] do
-        coro = coromap[coro]
+    while coromap[co] do
+        co = coromap[co]
     end
-    if coro == "mainthread" then return nil end
-    return coro
+    if co == "mainthread" then return nil end
+    return co
 end
-
-function copcall(f, ...)
-    return coxpcall(f, id, ...)
-end
-
-pcall = copcall
-xpcall = coxpcall
-coroutine.running = corunning
 `;
