@@ -33,18 +33,20 @@ oop.prepareClass = function(name)
             return
         end
 
-        if isElement(self) and not oop.elementInfo[self] then
-                oop.elementInfo[element] = {}
+        if isElement(self) then
+            if not oop.elementInfo[self] then
+                oop.elementInfo[self] = {}
 
                 addEventHandler(SERVER and "onElementDestroy" or "onClientElementDestroy", self,
                         function()
                             oop.elementInfo[self] = nil
                         end,
-                    false, "low-999999"
+                        false, "low-999999"
                 )
-        end
+            end
 
-        oop.elementInfo[self][key] = value
+            oop.elementInfo[self][key] = value
+        end
     end
 end
 
