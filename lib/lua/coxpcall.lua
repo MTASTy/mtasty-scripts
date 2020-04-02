@@ -1,12 +1,3 @@
-export const MTAHelpersScriptName = "____mta_helpers.lua";
-
-// noinspection RemoveUnusedLocal
-export const MTAHelpersScriptContent = `\
-____exports = {}
-require = function(path)
-    return ____exports["build/" .. string.gsub(path, "%.", "/") .. ".lua"]
-end
-
 _pcall, _xpcall = pcall, xpcall
 coroutine._running = coroutine.running
 
@@ -72,4 +63,3 @@ function coroutine.running(co)
     if co == "mainthread" then return nil end
     return co
 end
-`;

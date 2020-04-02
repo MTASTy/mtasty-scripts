@@ -1,13 +1,13 @@
 /* tslint:disable */
-import * as path from "path";
-import { promises as fsPromises } from "fs";
-import * as toposort from "toposort";
-import * as builder from "xmlbuilder";
-import { ResourceMap } from "../types/ResouceMap";
-import { ResourceFile } from "../types/ResourceFile";
-import { PackageConfig } from "../types/PackageConfig";
-import { getFilesPaths } from "../utils";
-import { MTAHelpersScriptContent, MTAHelpersScriptName } from "../const/mta-helpers";
+import * as path from 'path';
+import { promises as fsPromises } from 'fs';
+import * as toposort from 'toposort';
+import * as builder from 'xmlbuilder';
+import { ResourceMap } from '../types/ResouceMap';
+import { ResourceFile } from '../types/ResourceFile';
+import { PackageConfig } from '../types/PackageConfig';
+import { getFilesPaths } from '../utils';
+import { LibOutDirectoryName } from '../const/LibOutDirectoryName';
 
 interface GenerateMetaOptions {
   fullPath: string;
@@ -47,13 +47,24 @@ export async function generateMeta(options: GenerateMetaOptions) {
   });
 
   if (scriptsPaths.length > 0) {
-    xmlFile.ele("script", {
-      src: `build/${MTAHelpersScriptName}`,
-      cache: mtasty.cache,
-      type: mtasty.type
+    const copyLibPromises: Promise<void>[] = [];
+
+    const libScripts = [ "require.lua", "coxpcall.lua", "classlib.lua" ];
+    libScripts.forEach(lib => {
+      xmlFile.ele("script", {
+        src: `build/${LibOutDirectoryName}/${lib}`,
+        cache: mtasty.cache,
+        type: mtasty.type
+      });
+
+      const sourcePath = path.join(__dirname, `../../lib/lua/${lib}`);
+      const destinationPath = path.join(buildPath, `${LibOutDirectoryName}/${lib}`);
+
+      copyLibPromises.push(fsPromises.copyFile(sourcePath, destinationPath))
     });
 
-    await fsPromises.writeFile(path.join(buildPath, MTAHelpersScriptName), MTAHelpersScriptContent, "utf8");
+    await fsPromises.mkdir(path.join(buildPath, LibOutDirectoryName), { recursive: true });
+    await Promise.all(copyLibPromises);
   }
 
   scripts.forEach((script) => xmlFile.ele("script", { ...script }));

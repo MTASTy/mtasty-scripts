@@ -1,6 +1,6 @@
 {
   "name": "@mtasty/scripts",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "description": "",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/cli.ts",
@@ -13,11 +13,12 @@
   },
   "files": [
     "build/**/*.js",
-    "build/**/*.ts"
+    "build/**/*.ts",
+    "lib/lua/*.lua"
   ],
   "license": "MIT",
   "dependencies": {
-    "@mtasty/typescript-to-lua": "^0.32.2",
+    "@mtasty/typescript-to-lua": "^0.32.3",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.0",
     "commander": "^4.0.0",
