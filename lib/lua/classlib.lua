@@ -28,7 +28,16 @@ oop.prepareClass = function(name)
     end
 
     mt.__newindex = function(self, key, value)
-        if __set[key] ~= nil then
+        local hasIndex = __set[key] ~= nil
+        if not hasIndex then
+            local parentMT = mt.__parent
+            while (parentMT and not hasIndex) do
+                hasIndex = parentMT.__set[key] ~= nil
+                parentMT = parentMT.__parent
+            end
+        end
+
+        if hasIndex then
             __mtanewindex(self, key, value)
             return
         end
