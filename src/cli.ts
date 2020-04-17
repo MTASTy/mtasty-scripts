@@ -5,7 +5,7 @@ import { getFilesPaths, parseConfig, parsePath } from "./utils";
 import { generateMeta } from "./scripts/generate-meta";
 import { buildProject } from "./scripts/build";
 import * as path from "path";
-import { LibOutDirectoryName } from './const/LibOutDirectoryName';
+import { MTAHelpersScriptName } from "./const/mta-helpers";
 
 program
   .command("build")
@@ -32,7 +32,7 @@ program
 
       const scriptsPaths = (await getFilesPaths(path.join(fullPath, "build")))
         .filter(filePath => path.extname(filePath) === ".lua")
-        .filter(filePath => filePath.split('/').reverse()[1] !== LibOutDirectoryName)
+        .filter(filePath => path.basename(filePath) !== MTAHelpersScriptName)
       ;
 
       await generateMeta({ fullPath, scriptsPaths, config });

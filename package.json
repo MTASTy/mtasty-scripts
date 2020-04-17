@@ -1,6 +1,6 @@
 {
   "name": "@mtasty/scripts",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/cli.ts",
@@ -13,8 +13,7 @@
   },
   "files": [
     "build/**/*.js",
-    "build/**/*.ts",
-    "lib/lua/*.lua"
+    "build/**/*.ts"
   ],
   "license": "MIT",
   "dependencies": {
